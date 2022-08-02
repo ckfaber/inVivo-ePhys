@@ -30,7 +30,7 @@ clc;
 %% Set data loading/saving directories
 
 % Files
-file_name = 'dmu005-29072022-001';
+file_name = '2022-08-02_dmu005-002';
 
 % Hard-code file directories
 load_path   = 'C:\Users\cfaber\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\';
@@ -48,6 +48,9 @@ cd(save_dir)
 % empty/0-valued analog channels occur BEFORE the 16-channels of neural
 % analog data. 
 
+% UPDATE: think that the issue is that the WB data is not being saved - WTF
+% PLEXON?!?! Need to reconfigure the PlexControl settings. 
+
 [nChan,sampCounts]          = plx_adchan_samplecounts(load_path);
 L                           = sampCounts(1);
 number_of_channels          = 16;
@@ -55,7 +58,7 @@ data_mat                    = zeros(number_of_channels,L);             % initial
 
 for k = 0:number_of_channels-1
 
-    [sr, n, ts, fn, ad]     = plx_ad_v(load_path, k);
+    [sr, n, ts, fn, ad]     = plx_ad_v(load_path, 33);
     data_mat(k+1,:)         = ad;
     data = data_mat(k+1,:);
     save([file_name '_ch' num2str(k+1) '.mat'],'data','sr') % save raw broadband data for each channel as .mat
