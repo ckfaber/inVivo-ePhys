@@ -51,6 +51,10 @@ cd(save_dir)
 % UPDATE: think that the issue is that the WB data is not being saved - WTF
 % PLEXON?!?! Need to reconfigure the PlexControl settings. 
 
+% TO DO: 
+% instead of looping plx_ad_v based on index position, loop based on WB01
+% -- WB16 by name. Create cell array with those, then index each. 
+
 [nChan,sampCounts]          = plx_adchan_samplecounts(load_path);
 L                           = sampCounts(1);
 number_of_channels          = 16;
