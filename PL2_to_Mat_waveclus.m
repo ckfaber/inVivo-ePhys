@@ -73,6 +73,9 @@ L                           = size(data_mat,2);                         % length
 time_basis                  = 0:1/sr:(L-1)/sr;                          % time base
 
 cd(save_dir)
+
+% TO DO: omit this, to avoid having to save a bunch of individual .mat
+% files just for Get_spikes. Can do that temporarily in future if necessary
 save([file_name '.mat'],'data_mat','sr');          
 batch_txt = what; batch_txt = batch_txt.mat;
 batch_input = [file_name '_batch.txt'];
