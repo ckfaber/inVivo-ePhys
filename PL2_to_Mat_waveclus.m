@@ -46,7 +46,7 @@ cd(save_dir)
 [nChan,sampCounts]          = plx_adchan_samplecounts(load_path);
 L                           = sampCounts(1);
 number_of_channels          = 16;
-data_mat                    = zeros(number_of_channels,L);             % initialize data matrix
+data_mat                    = zeros(number_of_channels,L);              % initialize data matrix
 
 broadband_ch_names          = {'WB01';'WB02';'WB03';'WB04';'WB05';'WB06';'WB07';'WB08';'WB09';'WB10';'WB11';'WB12';'WB13';'WB14';'WB15';'WB16'};
 
@@ -54,25 +54,31 @@ for k = 1:number_of_channels
 
     [sr, n, ts, fn, ad]     = plx_ad_v(load_path, broadband_ch_names{k});
     data_mat(k,:)           = ad;
-    data = data_mat(k,:);
-    save([file_name '_ch' num2str(k) '.mat'],'data','sr') % save raw broadband data for each channel as .mat
+    
 end
-
-sr                          = sr;                                       % sampling frequency
-L                           = size(data_mat,2);                         % length of signal
-time_basis                  = 0:1/sr:(L-1)/sr;                          % time base
-
-cd(save_dir)
 
 % TO DO: omit this, to avoid having to save a bunch of individual .mat
 % files just for Get_spikes. Can do that temporarily in future if necessary
+cd(save_dir)
 save([file_name '.mat'],'data_mat','sr');          
-batch_txt = what; batch_txt = batch_txt.mat;
-batch_input = [file_name '_batch.txt'];
-writecell(batch_txt,batch_input);  % save txt file with names of each .mat file for broadband data
 
-%% Wave_clus spike sorting
+%% Prepare for spike detection
 
+% Save each channel as separate .mat for Get_spikes
+% data = data_mat(k,:);
+% save([file_name '_ch' num2str(k) '.mat'],'data','sr') % save raw broadband data for each channel as .mat
+
+% Create cell array containing all filenames for Get_spikes
+% txt                     = [file_name '_ch' num2str(k+2) '.mat'];
+% save(txt,'data','sr') % save raw broadband data for each channel as .mat
+% batch_txt{k+2}           = txt;
+% 
+% 
+% batch_txt = what; batch_txt = batch_txt.mat;
+% batch_input = [file_name '_batch.txt'];
+% writecell(batch_txt,batch_input);  % save txt file with names of each .mat file for broadband data
+
+%% Spike detection
 Get_spikes(batch_input);
 
 % set parameters for automated spike sorting:
