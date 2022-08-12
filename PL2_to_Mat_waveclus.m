@@ -29,11 +29,8 @@ clc;
 
 %% Set data loading/saving directories
 
-
-% lil change
-
 % Files
-file_name = '2022-08-02_dmu005-002';
+file_name = '2021-09-17_test5';
 
 % Hard-code file directories
 load_path   = 'C:\Users\cfaber\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\';
@@ -46,29 +43,19 @@ cd(save_dir)
 
 %% Load data into matrix; export each channel as .mat for wave_clus spike sorting
 
-% NOTE: this breaks if the default ordering of the analog channels is
-% changed, which it spontaneously did after updating Omniplex. Many
-% empty/0-valued analog channels occur BEFORE the 16-channels of neural
-% analog data. 
-
-% UPDATE: think that the issue is that the WB data is not being saved - WTF
-% PLEXON?!?! Need to reconfigure the PlexControl settings. 
-
-% TO DO: 
-% instead of looping plx_ad_v based on index position, loop based on WB01
-% -- WB16 by name. Create cell array with those, then index each. 
-
 [nChan,sampCounts]          = plx_adchan_samplecounts(load_path);
 L                           = sampCounts(1);
 number_of_channels          = 16;
 data_mat                    = zeros(number_of_channels,L);             % initialize data matrix
 
-for k = 0:number_of_channels-1
+broadband_ch_names          = {'WB01';'WB02';'WB03';'WB04';'WB05';'WB06';'WB07';'WB08';'WB09';'WB10';'WB11';'WB12';'WB13';'WB14';'WB15';'WB16'};
 
-    [sr, n, ts, fn, ad]     = plx_ad_v(load_path, 33);
-    data_mat(k+1,:)         = ad;
-    data = data_mat(k+1,:);
-    save([file_name '_ch' num2str(k+1) '.mat'],'data','sr') % save raw broadband data for each channel as .mat
+for k = 1:number_of_channels
+
+    [sr, n, ts, fn, ad]     = plx_ad_v(load_path, broadband_ch_names{k});
+    data_mat(k,:)           = ad;
+    data = data_mat(k,:);
+    save([file_name '_ch' num2str(k) '.mat'],'data','sr') % save raw broadband data for each channel as .mat
 end
 
 sr                          = sr;                                       % sampling frequency
