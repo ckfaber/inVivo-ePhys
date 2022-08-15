@@ -1,11 +1,13 @@
-% WIP script for reading in .pl2 files from Plexon electrophysiology system
+%% PL2_to_Mat
+% Script for reading in .pl2 files from Plexon electrophysiology system
+
 % Prepared by: Chelsea Faber, Bradley Greger
-% 
+% Mirzadeh Lab, Barrow Neurological Institute
+
+% kasper.chelsea@gmail.com
+
 % Requirements: 
 % - Plexon Offline SDK: https://plexon.com/software-downloads/#software-downloads-SDKs
-% - Chronux 
-% - wave_clus 
-% - Signal Processing Toolbox
 
 clear;
 clc;
