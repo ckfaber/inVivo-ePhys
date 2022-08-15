@@ -36,30 +36,32 @@ load_path   = [load_dir file_name '.pl2'];
 save_dir    = [load_dir 'Extracted'];
 cd(save_dir)
 
-% TO DO:
-% - check to see if the .mat already exists in the Extracted subfolder before doing this.
+%% Load data into matrix
 
-%% Load data into matrix; export each channel as .mat for wave_clus spike sorting
+if exist([file_name '.mat'],'file') ==2
 
-[nChan,sampCounts]          = plx_adchan_samplecounts(load_path);
-L                           = sampCounts(1);
-number_of_channels          = 16;
-data_mat                    = zeros(number_of_channels,L);              % initialize data matrix
+    fprintf('Data have already been extracted to Extracted folder.');
 
-broadband_ch_names          = {'WB01';'WB02';'WB03';'WB04';'WB05';'WB06';'WB07';'WB08';'WB09';'WB10';'WB11';'WB12';'WB13';'WB14';'WB15';'WB16'};
+elseif exist([file_name '.mat'],'file') ==0
 
-for k = 1:number_of_channels
+    [nChan,sampCounts]          = plx_adchan_samplecounts(load_path);
+    L                           = sampCounts(1);
+    number_of_channels          = 16;
+    data_mat                    = zeros(number_of_channels,L);              % initialize data matrix
 
-    [sr, n, ts, fn, ad]     = plx_ad_v(load_path, broadband_ch_names{k});
-    data_mat(k,:)           = ad;
+    broadband_ch_names          = {'WB01';'WB02';'WB03';'WB04';'WB05';'WB06';'WB07';'WB08';'WB09';'WB10';'WB11';'WB12';'WB13';'WB14';'WB15';'WB16'};
+
+    for k = 1:number_of_channels
+
+        [sr, n, ts, fn, ad]     = plx_ad_v(load_path, broadband_ch_names{k});
+        data_mat(k,:)           = ad;
     
+    end
+
+    save([file_name '.mat'],'data_mat','sr');
+    fprintf('Data extracted successfully.')
+
 end
-
-
-
-cd(save_dir)
-save([file_name '.mat'],'data_mat','sr');          
-
 %% Load optical stimulation data
 
 [Fs_stim, n, ts, fn, data_stim] = plx_ad_v(load_path, 'AI01');
