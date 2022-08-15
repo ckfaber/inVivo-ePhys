@@ -29,13 +29,15 @@ clc;
 file_name = '2021-09-17_test5';
 
 % Hard-code file directories
-load_path   = 'C:\Users\cfaber\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\';
-
-save_dir    = 'C:\Users\cfaber\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted';  
+load_dir   = 'C:\Users\cfaber\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\';
 
 % Dont' change
-load_path = [load_path file_name '.pl2'];
+load_path   = [load_dir file_name '.pl2'];
+save_dir    = [load_dir 'Extracted'];
 cd(save_dir)
+
+% TO DO:
+% - check to see if the .mat already exists in the Extracted subfolder before doing this.
 
 %% Load data into matrix; export each channel as .mat for wave_clus spike sorting
 
@@ -53,8 +55,8 @@ for k = 1:number_of_channels
     
 end
 
-% TO DO: omit this, to avoid having to save a bunch of individual .mat
-% files just for Get_spikes. Can do that temporarily in future if necessary
+
+
 cd(save_dir)
 save([file_name '.mat'],'data_mat','sr');          
 
