@@ -1,5 +1,6 @@
 %% PL2_to_Mat
-% Script for reading in .pl2 files from Plexon electrophysiology system
+% Script for extracting data from .pl2 files from Plexon electrophysiology
+% system, and saving to .mat
 
 % Prepared by: Chelsea Faber, Bradley Greger
 % Mirzadeh Lab, Barrow Neurological Institute
@@ -14,14 +15,11 @@ clc;
 
 %% To-do: 
 
-%    - quick time-frequency spectra?
-
-%    - tidy data procedure to automate data down-sampling, filtering,
-%   epoch-alignment, spike extraction, etc. based upon pre-defined
-%   procedure/parameter saved in ExperimentLog file.
-%        - update data directory so all .pl2 files are in common folder
-%        - implement consistent naming convention for all experimental data
-%    files
+%    - convert to function: 
+%       - inputs: 
+%       - array of file names? or just one at a time for now
+%       - list of non-neural data channels desired
+%    - improve hard-coding of centralized data repository - fullfile?
 
 %% Set data loading/saving directories
 
