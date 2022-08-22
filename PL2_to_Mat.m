@@ -74,10 +74,13 @@ end
 %% Load optical stimulation data
 
 % Check whether requested data channels exist
-
+analog_ch_names               = {'AI01';'AI02';'AI03';'AI04';'AI05';'AI06';'AI07';'AI08';
+                                 'AI09';'AI10';'AI11';'AI12';'AI13';'AI14';'AI15';'AI16';
+                                 'AI17';'AI18';'AI19';'AI20';'AI21';'AI22';'AI23';'AI24';
+                                 'AI25';'AI26';'AI27';'AI28';'AI29';'AI30';'AI31';'AI32'};
 
 % Load requested data channels
-[Fs_stim, n, ts, fn, data_stim] = plx_ad_v(load_path, 'AI01');
+[sr_LED, n, ts, fn, data_LED] = plx_ad_v(load_path, 'AI01');
 
 % Save
-save([file_name '_opto_stims' '.mat'],'data_stim','Fs_stim'); 
+save([file_name '_opto_stims' '.mat'],'data_LED','sr_LED'); 
