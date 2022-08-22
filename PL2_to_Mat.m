@@ -49,7 +49,7 @@ pl2idx      = PL2GetFileIndex(load_path);
 % Load neural data into matrix
 if exist([file_name '.mat'],'file') ==2
 
-    fprintf('Data have already been extracted to Extracted folder.');
+    fprintf('Data have already been extracted.');
 
 elseif exist([file_name '.mat'],'file') ==0
 
@@ -67,20 +67,45 @@ elseif exist([file_name '.mat'],'file') ==0
     
     end
 
-    save([file_name '.mat'],'data','sr','pl2idx');
-    fprintf('Data extracted successfully.')
+%     save([file_name '.mat'],'data','sr','pl2idx');
+%     fprintf('Data extracted successfully.')
 
 end
 %% Load optical stimulation data
 
 % Check whether requested data channels exist
-analog_ch_names               = {'AI01';'AI02';'AI03';'AI04';'AI05';'AI06';'AI07';'AI08';
+
+
+if exist([file_name '_AI.mat'],'file') ==2
+
+    fprintf('Non-neural data have already been extracted.');
+
+elseif exist([file_name '_AI.mat'],'file') ==0
+
+    L                           = sampCounts(end);                          % MAY BREAK IF OMNIPLEX CONFIG CHANGED
+    number_of_channels          = 32;                                       % MAY BREAK IF OMNIPLEX CONFIG CHANGED
+    AI_data                     = zeros(number_of_channels,L);              % initialize data matrix
+
+    analog_ch_names             = {'AI01';'AI02';'AI03';'AI04';'AI05';'AI06';'AI07';'AI08';
                                  'AI09';'AI10';'AI11';'AI12';'AI13';'AI14';'AI15';'AI16';
                                  'AI17';'AI18';'AI19';'AI20';'AI21';'AI22';'AI23';'AI24';
                                  'AI25';'AI26';'AI27';'AI28';'AI29';'AI30';'AI31';'AI32'};
 
-% Load requested data channels
-[sr_AI, n, ts, fn, data_AI] = plx_ad_v(load_path, 'AI01');
+    for k = 1:number_of_channels
 
+        [AI_sr, n, ts, fn, AI_ad]     = plx_ad_v(load_path, analog_ch_names{k});
+        AI_data(k,:)                  = AI_ad;
+    
+    end
+
+    save([file_name '_AI.mat'],'AI_data','AI_sr');
+    fprintf('AI data extracted successfully.')
+
+end
+
+
+% Load requested data channels
+% [sr_AI, n, ts, fn, data_AI] = plx_ad_v(load_path, 'AI01');
+% 
 % Save
-save([file_name 'AI' '.mat'],'data_AI','sr_AI'); 
+% save([file_name 'AI' '.mat'],'data_AI','sr_AI'); 
