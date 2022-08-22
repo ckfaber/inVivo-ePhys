@@ -34,8 +34,12 @@ load_path   = [load_dir file_name '.pl2'];
 save_dir    = [load_dir 'Extracted'];
 cd(save_dir)
 
-%% Load data into matrix
+%% Load data
 
+% Load Omniplex metadata
+pl2idx      = PL2GetFileIndex(load_path);
+
+% Load neural data into matrix
 if exist([file_name '.mat'],'file') ==2
 
     fprintf('Data have already been extracted to Extracted folder.');
@@ -56,7 +60,7 @@ elseif exist([file_name '.mat'],'file') ==0
     
     end
 
-    save([file_name '.mat'],'data_mat','sr');
+    save([file_name '.mat'],'data_mat','sr','pl2idx');
     fprintf('Data extracted successfully.')
 
 end
