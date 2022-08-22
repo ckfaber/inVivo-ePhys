@@ -80,7 +80,7 @@ analog_ch_names               = {'AI01';'AI02';'AI03';'AI04';'AI05';'AI06';'AI07
                                  'AI25';'AI26';'AI27';'AI28';'AI29';'AI30';'AI31';'AI32'};
 
 % Load requested data channels
-[sr_LED, n, ts, fn, data_LED] = plx_ad_v(load_path, 'AI01');
+[sr_AI, n, ts, fn, data_AI] = plx_ad_v(load_path, 'AI01');
 
 % Save
-save([file_name '_opto_stims' '.mat'],'data_LED','sr_LED'); 
+save([file_name 'AI' '.mat'],'data_AI','sr_AI'); 
