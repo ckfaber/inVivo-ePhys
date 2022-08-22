@@ -36,6 +36,13 @@ cd(save_dir)
 
 %% Load data
 
+% Check for file
+if exist(load_path,'file') ~= 2
+    error 'file does not exist, please confirm correct file path specified';
+    cd(load_dir)
+    filebrowser
+end
+
 % Load Omniplex metadata
 pl2idx      = PL2GetFileIndex(load_path);
 
