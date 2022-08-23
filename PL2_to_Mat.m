@@ -34,7 +34,7 @@ load_path   = [load_dir file_name];
 save_dir    = [load_dir 'Extracted'];
 
 save_name   = strsplit(file_name,'.');
-save_name   = string(save_name(1));
+save_name   = char(save_name(1));
 cd(save_dir)
 
 %% Load data
@@ -90,7 +90,7 @@ elseif exist([file_name '.mat'],'file') ==0
     end
 
     % Export as .mat 
-    save([file_name '.mat'],'pl2idx','data','sr','AI_data','AI_sr');
-    fprintf('Data extracted successfully.')
+    save([save_name '.mat'],'pl2idx','data','sr','AI_data','AI_sr');
+    fprintf('Data extracted successfully.\n')
 
 end
