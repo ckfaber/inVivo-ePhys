@@ -27,7 +27,7 @@ clc;
 file_name   = '2021-09-17_test5';
 
 % Raw data repo - assumes working directory is 'C:\Users\username\MATLAB\'
-load_dir    = fullfile('.','..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\');
+load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\');
 
 % Hard-code file directories
 %load_dir    = 'C:\Users\cfaber\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\';
