@@ -1,31 +1,29 @@
-%% PL2_to_Mat
-% Script for extracting data from .pl2 files from Plexon electrophysiology
-% system, and saving to .mat
-
-% Prepared by: Chelsea Faber, Bradley Greger
-% Mirzadeh Lab, Barrow Neurological Institute
-
-% kasper.chelsea@gmail.com
-
-% Requirements: 
-% For full documentation, please see the README and Getting
-% Started guides at https://github.com/ckfaber/inVivo-ePhys
-
-clear; close all;
-clc;
+function PL2_to_Mat(pl2_file)
+%   PL2_TO_MAT Extract raw broadband and auxiliarly analog input data from
+%   .pl2 files and save to .mat.
+%
+%   Input must be string or character vector of .pl2 file name, which must
+%   be saved in raw data repository of Mirzadeh Lab Dropbox.
+%
+%   Prepared by: Chelsea Faber, Bradley Greger
+%   Mirzadeh Lab, Barrow Neurological Institute
+%
+%   kasper.chelsea@gmail.com
+%
+%   Requirements: 
+%   For full documentation, please see the README and Getting
+%   Started guides at https://github.com/ckfaber/inVivo-ePhys
 
 %% To-do: 
 
 %    - convert to function: 
-%       - inputs: 
-%       - array of file names? or just one at a time for now
-%       - list of non-neural data channels desired (varargin?)
-%    - improve hard-coding of centralized data repository - fullfile?
+%       - allow input array of file names.
+%       - list of non-neural data channels desired (varargin)
 
 %% Set data loading/saving directories
 
 % Files
-file_name   = '2021-09-17_test5.pl2';
+file_name   = pl2_file;
 
 % Raw data repo - assumes working directory is 'C:\Users\username\MATLAB\'
 load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\');
