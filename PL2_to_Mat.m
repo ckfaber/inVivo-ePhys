@@ -8,7 +8,8 @@
 % kasper.chelsea@gmail.com
 
 % Requirements: 
-% - Plexon Offline SDK: https://plexon.com/software-downloads/#software-downloads-SDKs
+% For full documentation, please see the README and Getting
+% Started guides at https://github.com/ckfaber/inVivo-ePhys
 
 clear; close all;
 clc;
@@ -24,17 +25,18 @@ clc;
 %% Set data loading/saving directories
 
 % Files
-file_name   = '2021-09-17_test5';
+file_name   = '2021-09-17_test5.pl2';
 
 % Raw data repo - assumes working directory is 'C:\Users\username\MATLAB\'
 load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\');
 
-% Hard-code file directories
-%load_dir    = 'C:\Users\cfaber\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\';
+%% Dont' change
 
-% Dont' change
-load_path   = [load_dir file_name '.pl2'];
+load_path   = [load_dir file_name];
 save_dir    = [load_dir 'Extracted'];
+
+save_name   = strsplit(file_name,'.');
+save_name   = string(save_name(1));
 cd(save_dir)
 
 %% Load data
