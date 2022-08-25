@@ -37,19 +37,31 @@ load([load_dir file_name],'data','sr','pl2idx')
 
 %% Filter 
 
-%% low pass filter from Bradley
+filter_type     = '';
 
-order = 3;
-Rp = 1; % pass-band ripple in db
-Rs = 60; % stop-band attenuation in db
-Fc = 250; % cutoff frequency - 250 Hz will remove most low frequency LFP %this doesn't make sense? Will remove high frequency?
-Fs = Fs; % sampling frequency of data (the specific Fs should be in the data file)
-[z,p,k] = ellip(order,Rp,Rs,Fc/(Fs/2),'low'); % building (setup) filter
-% [z,p,k] = butter(order,Fc/(Fs/2),'high'); % butterworth filter
-[SOS,G] = zp2sos(z,p,k);% convert to SOS structure to use filter analysis tool
-% tool to look at filter
-% fvtool(SOS);
-tic;
-lfp = filtfilt(SOS,G,data); %running filter
-toc
+%% LPF - Elliptical
+
+% Filter parameters
+order   = 3;        % smaller order = gentler, less distortive effect on original data
+Rp      = 1;        % pass-band ripple in db
+Rs      = 60;       % stop-band attenuation in db
+Fc      = 250;      % cutoff frequency - 250 Hz will remove most low frequency LFP %this doesn't make sense? Will remove high frequency?
+Fs      = sr;       % sampling frequency of data (the specific Fs should be in the data file)
+
+% Filter construction
+[z,p,k] = ellip(order, Rp, Rs, Fc/(Fs/2), 'low'); 
+
+% Convert to SOS structure to use filter analysis tool
+[SOS,G] = zp2sos(z, p, k);
+
+% Visualize filter
+fvtool(SOS);
+
+% Run filter
+lfp     = filtfilt(SOS,G,(data'))'; % running filter
+
+%% LPF - Butterworth
+
+%% LPF - Lowpass
+
 
