@@ -5,7 +5,8 @@
 
 % function inputs
 % filename (for .mat in Extracted subfolder)
-% parameters for spike sorting via Get_spikes.m
+% varargin: parameters for spike sorting via Get_spikes.m, otherwise use
+% default. Name-value pairs using inputParser method: https://www.mathworks.com/help/matlab/ref/inputparser.html?s_tid=doc_ta
 
 filename    = '2022-08-16_dmu005_001';
 
@@ -20,43 +21,50 @@ clear raw_data
 
 %% Prepare for spike detection
 
+% Initialize empty data matrix and cell array with file names
 nChan       = size(data_mat,1);
 batch_files = cell(nChan,1);
 
+% Extract path to temporary folder
 path        = tempdir;
 
-% Check if temp folder for Get_spikes already exists (typically deleted
-% every 30 days)
+% Check if temp folder for Get_spikes already exists
 if exist(fullfile(path,'Get_spikes')) ~=7
     mkdir(path,'Get_spikes');
 end
 
+% Loop through channels and save each to individual .mat file
 for chi = 1:nChan
 
     % To temp folder, save each channel as separate .mat for Get_spikes
     temp_filename            = [filename '_ch' num2str(chi)];
     data = data_mat(chi,:);
     save(fullfile(path,'Get_spikes',temp_filename),'data','sr') % save raw broadband data for each channel as .mat
-
     batch_files{chi}         = [temp_filename '.mat'];
 
 end
 
-%% Spike detection
+%% Spike detection via Get_spikes
 
-% To do: 
-% path to temp folder for Get_spikes
-% path to where to save spikes?
-% save all channel spikes to one big struct, in Extracted folder, or
-% project-specific directory?
+% if parameters detected in varargin
+% 
+%     param.detection = 'both';
+%     param.w_pre      = w_pre;
+%     param.w_post     = w_post;
+% 
+% end
 
 cd(fullfile(path,'Get_spikes'))
-Get_spikes(batch_files);
+Get_spikes(batch_files,'par',param);
 
+%% Combine separate _spikes files into one big struct. Save to Extracted folder.
 
-%% Combine separate _spikes files into one big struct
-
-
+% what to include? 
+% - index
+% - spikes
+% - threshold
+% - par??? <- should be the same for each channel, seems redundant to have
+% duplicates around. 
 
 
 
