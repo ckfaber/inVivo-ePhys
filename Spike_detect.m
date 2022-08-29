@@ -6,24 +6,38 @@
 %    - combine sorted spikes into matrix --> ID optical responders &
 %    standardize metric/doc
 
+% function inputs
+% filename (for .mat in Extracted subfolder)
+% parameters for spike sorting via Get_spikes.m
+
+%% Load raw neural data
+
+load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted\');
+raw_data    = load([load_dir filename],'-mat','data','sr');
+
+data_mat    = raw_data.data;
+sr          = raw_data.sr;
+clear raw_data
+
 %% Prepare for spike detection
 
-% Save each channel as separate .mat for Get_spikes
-% data = data_mat(k,:);
-% save([file_name '_ch' num2str(k) '.mat'],'data','sr') % save raw broadband data for each channel as .mat
+nChan       = size(data_mat,1);
+batch_files = cell(nChan,1);
 
-% Create cell array containing all filenames for Get_spikes
-% txt                     = [file_name '_ch' num2str(k+2) '.mat'];
-% save(txt,'data','sr') % save raw broadband data for each channel as .mat
-% batch_txt{k+2}           = txt;
-% 
-% 
-% batch_txt = what; batch_txt = batch_txt.mat;
-% batch_input = [file_name '_batch.txt'];
-% writecell(batch_txt,batch_input);  % save txt file with names of each .mat file for broadband data
+for chi = 1:nChan
+
+    % To temp folder, save each channel as separate .mat for Get_spikes
+    temp_filename            = [filename '_ch' num2str(chi)];
+    data = data_mat(chi,:);
+    save(fullfile(tempdir,temp_filename),'data','sr') % save raw broadband data for each channel as .mat
+
+    batch_files{chi}         = temp_filename;
+
+end
 
 %% Spike detection
-Get_spikes(batch_input);
+
+Get_spikes(batch_files);
 
 % set parameters for automated spike sorting:
 param.min_clus              = 20;
