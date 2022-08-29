@@ -3,13 +3,6 @@
 % To do: 
 % convert to function; wrapper for Get_spikes
 
-
-%    - Automate spike sorting with wave_clus --> how to set default
-%    settings but be able to go back and manually sort after? 
-
-%    - combine sorted spikes into matrix --> ID optical responders &
-%    standardize metric/doc
-
 % function inputs
 % filename (for .mat in Extracted subfolder)
 % parameters for spike sorting via Get_spikes.m
@@ -65,13 +58,5 @@ Get_spikes(batch_files);
 
 
 
-%% Spike clustering 
-% 
-% set parameters for automated spike sorting:
-% param.min_clus              = 20;
-% param.max_spk               = 50000;
-% par.maxtemp                 = 0.251;
-% set(0, 'DefaultFigureWindowStyle', 'normal');
 
-% Do_clustering('09172021test2_ch5_spikes.mat'); % test file for now; use 'all' to run all files in current directory
 
