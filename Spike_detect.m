@@ -13,6 +13,7 @@ filename    = '2022-08-16_dmu005_001';
 %% Load raw neural data
 
 load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted\');
+save_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Processed\');
 raw_data    = load([load_dir filename],'-mat','data','sr');
 
 data_mat    = raw_data.data;
@@ -59,12 +60,23 @@ Get_spikes(batch_files,'par',param);
 
 %% Combine separate _spikes files into one big struct. Save to Extracted folder.
 
-% what to include? 
-% - index
-% - spikes
-% - threshold
-% - par??? <- should be the same for each channel, seems redundant to have
-% duplicates around. 
+% Get list of all _spikes.mat files
+s                  = [filename '_ch*_spikes.mat'];
+spikefilenames     = dir(s);
+spikefilenames     = {spikefilenames.name};
 
+% Initialize struct to store spike data
+spikes             = struct;
 
+% Loop through _spikes.mat files
+for chi = 1:size(spikefilenames,2);
 
+    fieldname    = ['ch' num2str(chi)];
+    spikes.(fieldname) = load(spikefilenames{chi},'index','threshold','spikes','par');
+
+end
+
+cd(save_dir)
+save([filename '_MUA' '.mat'],'spikes');
+
+%% THINK ABOUT INPUT TO DO_CLUSTERING - maybe saving to temporary folder isn't the best way
