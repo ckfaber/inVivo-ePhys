@@ -1,6 +1,7 @@
 %% Spike_detect
 
 % To do: 
+% - CHANNEL CLEAN-UP/ARTIFACT SUBTRACTION BEFORE DOING THIS
 % - convert to function; wrapper for Get_spikes
 % - move the check to see if _spikes exists to earlier, before loading raw
 % data, to save time
@@ -20,6 +21,7 @@
 filename            = '2022-08-16_dmu005_001';
 w_pre               = 0.5;  % in ms
 w_post              = 2;    % in ms
+sort                = 'yes';
 
 %% Paths to load and save
 
@@ -108,3 +110,11 @@ if exist(fullfile(save_dir,savename)) ==2
 end
 
 %% THINK ABOUT INPUT TO DO_CLUSTERING - maybe saving to temporary folder isn't the best way
+
+if sort == 'yes'
+
+    cd(fullfile(tempdir,'Get_spikes'))
+    fprintf('Executing spike sorting. Go grab a coffee!');
+    Do_clustering(spikefiles);
+
+end
