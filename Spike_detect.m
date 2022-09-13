@@ -26,6 +26,7 @@ sort                = 'yes';
 %% Paths to load and save
 
 load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted\');
+temp_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Temp_Get_Spikes\')
 save_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Processed\');
 savename    = [filename '_MUA' '.mat'];
 
@@ -48,6 +49,9 @@ if exist(fullfile(save_dir,savename)) ==2
             data_mat    = raw_data.data;
             sr          = raw_data.sr;
             nChan       = size(data_mat,1);
+
+            % Common average re-referencing (artifact removal)
+            data_mat    = bsxfun(@minus,data_mat,mean(data_mat,1));
     
             % Set parameters for Get_spikes
             param.w_pre         = w_pre/1000 * sr;
@@ -56,12 +60,6 @@ if exist(fullfile(save_dir,savename)) ==2
             param.sr            = sr;
             clear raw_data
             fprintf('Raw data extracted')
-
-            % Check if temp folder for Get_spikes already exists
-            path = fullfile(tempdir,'Get_spikes');
-            if exist(path) ~=7
-                mkdir(tempdir,'Get_spikes');
-            end
 
 %             % Check if _spikes.mat files exist already
 %             pathfiles   = what(path);
@@ -80,13 +78,13 @@ if exist(fullfile(save_dir,savename)) ==2
                  spikefiles{chi}    = [temp_filename '_spikes'];
         
                  data = data_mat(chi,:);
-                 save(fullfile(path,temp_filename),'data','sr') % save raw broadband data for each channel as .mat
+                 save(fullfile(temp_dir,temp_filename),'data','sr') % save raw broadband data for each channel as .mat
          
-                 fprintf(['Channel ' num2str(chi) ' data saved to tempdir, ready for input to Get_spikes.m\n'])
+                 fprintf(['Channel ' num2str(chi) ' data saved to temp_dir, ready for input to Get_spikes.m\n'])
                    
             end
 
-            cd(path)
+            cd(temp_dir)
             fprintf('Running Get_spikes\n')
             Get_spikes(rawfiles,'par',param);
 
@@ -94,7 +92,7 @@ if exist(fullfile(save_dir,savename)) ==2
             spikes             = struct;
             
             % Loop through _spikes.mat files
-            fprintf("Saving detected spikes from Get_spikes into struct in 'Processed' folder")
+            fprintf('Saving detected spikes from Get_spikes into struct in ''Processed'' folder')
             for chi = 1:size(spikefiles,1);
             
                 fieldname    = ['ch' num2str(chi)];
@@ -113,7 +111,7 @@ end
 
 if sort == 'yes'
 
-    cd(fullfile(tempdir,'Get_spikes'))
+    cd(temp_dir)
     fprintf('Executing spike sorting. Go grab a coffee!');
     Do_clustering(spikefiles);
 
