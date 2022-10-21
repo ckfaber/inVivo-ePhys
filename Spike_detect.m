@@ -18,7 +18,7 @@
 %   _spikes.mat files to loop through them.
 
 
-filename            = '2022-08-16_dmu005_001';
+filename            = '2022-10-13_dmu005_002';
 w_pre               = 0.5;  % in ms
 w_post              = 2;    % in ms
 sort                = 'yes';
@@ -26,11 +26,78 @@ sort                = 'yes';
 %% Paths to load and save
 
 load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted\');
-temp_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Temp_Get_Spikes\')
+temp_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Temp_Get_Spikes\');
 save_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Processed\');
 savename    = [filename '_MUA' '.mat'];
 
-if exist(fullfile(save_dir,savename)) ==2 
+%% Perform spike detection and save to designated Temp and Processed subfolders
+
+if exist(fullfile(save_dir,savename),'file') ==0
+
+    % Load raw neural data
+    raw_data    = load([load_dir filename],'-mat','data','sr');
+
+    % Format for Get_spikes
+    data_mat    = raw_data.data;
+    sr          = raw_data.sr;
+    nChan       = size(data_mat,1);
+
+    % Common average re-referencing (artifact removal)
+    data_mat    = bsxfun(@minus,data_mat,mean(data_mat,1));
+
+    % Set parameters for Get_spikes
+    param.w_pre         = w_pre/1000 * sr; % convert ms to s and multiply by sr to get samples
+    param.w_post        = w_post/1000 * sr;
+    param.detection     = 'both'; % detect both positive and negative going spikes
+    param.sr            = sr; % ensure that the sampling rate is updated from the default in set_parameters()
+    clear raw_data
+    fprintf('Raw data extracted')
+
+    %             % Check if _spikes.mat files exist already
+    %             pathfiles   = what(path);
+    %             pathfiles   = pathfiles.mat;
+
+    % Initialize empty data matrix and cell array with file names
+    rawfiles    = cell(nChan,1);
+    spikefiles  = cell(nChan,1);
+
+    % Loop through channels, saving each channel as separate .mat for Get_spikes
+    for chi = 1:nChan
+
+        temp_filename      = [filename '_ch' num2str(chi)];
+        rawfiles{chi}      = [temp_filename '.mat'];
+        spikefiles{chi}    = [temp_filename '_spikes'];
+
+        data = data_mat(chi,:);
+        save(fullfile(temp_dir,temp_filename),'data','sr') % save raw broadband data for each channel as .mat
+
+        fprintf(['Channel ' num2str(chi) ' data saved to temp_dir, ready for input to Get_spikes.m\n'])
+
+    end
+
+    cd(temp_dir)
+    fprintf('Running Get_spikes\n')
+    Get_spikes(rawfiles,'par',param);
+
+    %Combine separate _spikes files into one big struct. Save to Extracted folder.
+    spikes             = struct;
+
+    % Loop through _spikes.mat files
+    fprintf('Saving detected spikes from Get_spikes into struct in ''Processed'' folder')
+    for chi = 1:size(spikefiles,1);
+
+        fieldname    = ['ch' num2str(chi)];
+        spikes.(fieldname) = load(spikefiles{chi},'index','threshold','spikes','par');
+
+    end
+
+    cd(save_dir)
+    save(savename,'spikes');
+    fprintf([savename ' saved to ' save_dir])
+
+
+% Check to see if spike sorting has already happened
+else exist(fullfile(save_dir,savename)) ==2 
     prompt = [savename ' detected in ' save_dir '. Would you like to repeat spike detection and over-write previous data?'];
     answer = questdlg(prompt, ...
                       'Warning', ...
