@@ -90,7 +90,7 @@ elseif exist([file_name '.mat'],'file') ==0
     end
 
     % Export as .mat 
-    save([save_name '.mat'],'pl2idx','data','sr','AI_data','AI_sr');
+    save([save_name '.mat'],'pl2idx','data','sr','AI_data','AI_sr','-v7.3');
     fprintf('Data extracted successfully.\n')
 
 end
