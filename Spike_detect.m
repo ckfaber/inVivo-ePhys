@@ -41,6 +41,7 @@ if exist(fullfile(save_dir,savename),'file') ==0
     data_mat    = raw_data.data;
     sr          = raw_data.sr;
     nChan       = size(data_mat,1);
+    L           = size(data_mat,2);
 
     % Common average re-referencing (artifact removal)
     data_mat    = bsxfun(@minus,data_mat,mean(data_mat,1));
@@ -92,7 +93,7 @@ if exist(fullfile(save_dir,savename),'file') ==0
     end
 
     cd(save_dir)
-    save(savename,'spikes');
+    save(savename,'spikes','L');
     fprintf([savename ' saved to ' save_dir])
 
 
@@ -116,6 +117,7 @@ else exist(fullfile(save_dir,savename)) ==2
             data_mat    = raw_data.data;
             sr          = raw_data.sr;
             nChan       = size(data_mat,1);
+            L           = size(data_mat,2);
 
             % Common average re-referencing (artifact removal)
             data_mat    = bsxfun(@minus,data_mat,mean(data_mat,1));
@@ -168,7 +170,7 @@ else exist(fullfile(save_dir,savename)) ==2
             end
             
             cd(save_dir)
-            save(savename,'spikes');
+            save(savename,'spikes','L');
             fprintf([savename ' saved to ' save_dir])
     
     end
