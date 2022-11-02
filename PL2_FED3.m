@@ -13,9 +13,13 @@
 %   Started guides at https://github.com/ckfaber/inVivo-ePhys
 
 %% To do: 
+
+% - fix issues with double-counting or missing peak detection
+% - get/export timestamps for start, pellet drop, pellet retrieval, stop,
+% etc.
+% - convert to function
 % - add call to retrieve metadata from google sheet, including version of
 % Arduino code used for Fed3 program
-% - 
 
 %% 
 
@@ -47,8 +51,8 @@ time                = 0 : 1/sr : (n-1)/sr;
 % of AIs. 
 
 [pks,locs,widths,proms]= findpeaks(fed3, sr, ...
-                                    'MinPeakHeight',3000, ...
-                                    'MinPeakWidth', 0.008, ...
+                                    'MinPeakHeight',3295, ...
+                                    'MinPeakWidth', 0.005, ...
                                     'Annotate','extents');
 
 % quick QC plot
@@ -82,9 +86,9 @@ title('Pellet Retrieval (1 x 10-ms)')
 ylabel('mV')
 
 % Export figure
-cd(savedir)
-set(gcf,'color','none')
-exportgraphics(gcf,[savename '_fed3.emf'],'BackgroundColor','none','ContentType','vector')
+% cd(savedir)
+% set(gcf,'color','none')
+% exportgraphics(gcf,[savename '_fed3.emf'],'BackgroundColor','none','ContentType','vector')
 
 %% 
 
