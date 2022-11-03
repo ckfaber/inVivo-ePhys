@@ -1,24 +1,31 @@
 %% Spike_detect
-
-% To do: 
-% - CHANNEL CLEAN-UP/ARTIFACT SUBTRACTION BEFORE DOING THIS
-% - convert to function; wrapper for Get_spikes
-% - move the check to see if _spikes exists to earlier, before loading raw
-% data, to save time
-
-% function inputs
-% filename (for .mat in Extracted subfolder)
-% varargin: 
+% 
+%   SPIKE_DETECT (Eventual) wrapper function to high-pass filter raw neural
+%   data, detect spikes using wave_clus Get_spikes(), and (optionally) sort
+%   spikes into single units using wave_clus Do_clustering().
 %
-% - Name-value pairs using inputParser method: https://www.mathworks.com/help/matlab/ref/inputparser.html?s_tid=doc_ta
-%   parameters for spike sorting via Get_spikes.m, otherwise use default.
-%
+% function inputs:
+% - filename (for .mat in Extracted subfolder) 
+% - varargin:
+% - Name-value pairs using inputParser method:
+% https://www.mathworks.com/help/matlab/ref/inputparser.html?s_tid=doc_ta
+% - parameters for spike sorting via Get_spikes.m, otherwise use default.
 % - whether spike sorting is needed (yes/no - if yes, tells
 %   Do_clustering/Spike_sort wrapper function to look in temp folder for
 %   _spikes.mat files to loop through them.
 
+%   Prepared by: Chelsea Faber Mirzadeh Lab, Barrow Neurological Institute
+%
+%   kasper.chelsea@gmail.com
 
-filename            = '2022-10-13_dmu005_002';
+%% To do: - CHANNEL CLEAN-UP/ARTIFACT SUBTRACTION BEFORE DOING THIS 
+% - wave_clus for tetrode recording??? 
+% - convert to function; wrapper for Get_spikes 
+% - move the check to see if _spikes exists to earlier, before
+% loading raw data, to save time
+
+%% 
+filename            = '2021-09-17_test5';
 w_pre               = 0.5;  % in ms
 w_post              = 2;    % in ms
 sort                = 'yes';
@@ -98,7 +105,7 @@ if exist(fullfile(save_dir,savename),'file') ==0
 
 
 % Check to see if spike sorting has already happened
-else exist(fullfile(save_dir,savename)) ==2 
+else exist(fullfile(save_dir,savename)) == 2; 
     prompt = [savename ' detected in ' save_dir '. Would you like to repeat spike detection and over-write previous data?'];
     answer = questdlg(prompt, ...
                       'Warning', ...
@@ -106,7 +113,7 @@ else exist(fullfile(save_dir,savename)) ==2
                       'NO', 'NO')
     switch answer
         case 'NO'
-            fprintf('MUA already performed. Exiting function.')
+            fprintf('MUA already performed. Aborting operation.')
             return
 
         case 'YES'
@@ -177,6 +184,9 @@ else exist(fullfile(save_dir,savename)) ==2
 end
 
 %% THINK ABOUT INPUT TO DO_CLUSTERING - maybe saving to temporary folder isn't the best way
+% - manual cleaning req'd after automated sorting
+% - how to deal with same spike on multiple channels in tetrode recordings
+% w/ NeuroNexus? wave_clus may not be suitable --> SpikeInterface
 
 if sort == 'yes'
 

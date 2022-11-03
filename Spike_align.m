@@ -1,5 +1,4 @@
 %% Spike Alignment
-% Prepared by Chelsea Faber
 
 % Requirements:
 % - Neural data extracted by PL2_to_Mat_waveclus.m from .pl2 file 
@@ -17,15 +16,23 @@
 % - spike rates over time for each neuron in each channel, plus averages
 % - automate script for all channels/convert to function?
 
-%% 
-
-clear;clc;close all
+%   Prepared by: Chelsea Faber
+%   Mirzadeh Lab, Barrow Neurological Institute
+%
+%   kasper.chelsea@gmail.com
 
 %% Hard-coding directory and experimental ID
 
+filename            = '2021-09-17_test5';
+channel             = 1;
+
+meta                = split(filename,{'_','.'});
+date                = char(meta(1));
+subject             = char(meta(2));
+session             = char(meta(3));
+
 % Copy/paste directory and experimental ID
-load_dir                 = 'C:\Users\chels\OneDrive - Barrow Neurological Institute\Project 3 - MUA of DMH\Pilots\Outputs\';  
-exp_ID                   = '09172021test2';
+load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Temp_Get_Spikes\');
 
 % Don't change these 
 cd(load_dir)
