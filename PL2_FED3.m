@@ -43,56 +43,61 @@ cd(savedir)
 [sr, n, ts, fn, fed3] = plx_ad_v(loadpath, AI);
 time                = 0 : 1/sr : (n-1)/sr;
 
-%% Detect & decode pulses
+%% Detect peaks
 
-% NOTE - this isn't working properly. Duplicate indices for some peaks,
-% others not detected well. Need to go into Arduino code for FED3 and make
-% sure the pulse-width is adjusted, and maybe also increase sampling rate
-% of AIs. 
+% separate start and end of pulses
+[pks_start,locs_start]= findpeaks(diff(fed3),sr,'MinPeakHeight',3000);
+[pks_end,locs_end]= findpeaks(-diff(fed3),sr,'MinPeakHeight',3000);
 
-[pks,locs,widths,proms]= findpeaks(fed3, sr, ...
-                                    'MinPeakHeight',3295, ...
-                                    'MinPeakWidth', 0.005, ...
-                                    'Annotate','extents');
+% shift time-stamps by one sample to the right (diff results in offset)
+locs_start          = locs_start + 1/sr; 
+locs_end            = locs_end + 1/sr;
 
 % quick QC plot
 figure,clf
-subplot(211)
 plot(time,fed3,'k-')
+hold on
+plot(time(2:end),diff(fed3),'b-')
+plot(locs_start,pks_start,'r*')
 xlim([-100 time(end)])
 ylim([-100 3500])
 title('Raw FED3 data')
 xlabel('Time (s)')
 ylabel('mV')
-hold on
-plot(locs,pks,'o')
 
-subplot(234)
-plot(time(17000:19000),fed3(17000:19000),'k-')
-xlabel('Time (s)')
-title('Start (5 x 500-ms)')
-ylabel('mV')
-
-subplot(235)
-plot(time(33750:34250),fed3(33750:34250),'k-')
-xlabel('Time (s)')
-title('Pellet Drop (1 x 5-ms)')
-ylabel('mV')
-
-subplot(236)
-plot(time(2525000:2526000),fed3(2525000:2526000),'k-')
-xlabel('Time (s)')
-title('Pellet Retrieval (1 x 10-ms)')
-ylabel('mV')
+% Misc plots
+% subplot(234)
+% plot(time(17000:19000),fed3(17000:19000),'k-')
+% xlabel('Time (s)')
+% title('Start (5 x 500-ms)')
+% ylabel('mV')
+% 
+% subplot(235)
+% plot(time(33750:34250),fed3(33750:34250),'k-')
+% xlabel('Time (s)')
+% title('Pellet Drop (1 x 5-ms)')
+% ylabel('mV')
+% 
+% subplot(236)
+% plot(time(2525000:2526000),fed3(2525000:2526000),'k-')
+% xlabel('Time (s)')
+% title('Pellet Retrieval (1 x 10-ms)')
+% ylabel('mV')
 
 % Export figure
 % cd(savedir)
 % set(gcf,'color','none')
 % exportgraphics(gcf,[savename '_fed3.emf'],'BackgroundColor','none','ContentType','vector')
 
-%% 
+%% Decode peaks
 
-threshold = 3200;
+fed3_startw = 0.050; % pulse-width of "Start" signal from fed3.BNC() arduino code
+fed3_startn = 5;
 
-fed3_edges             = conv(fed3,[1 0],'same'); % simple convolution-based edge detection
-locs                   = find(fed3_edges > threshold);
+fed3_dropw = 0.005; % pulse-width of "Pellet drop" signal
+fed3_dropn = 1; 
+
+fed3_bitew = 0.010; 
+fed3_biten = 1; 
+
+
