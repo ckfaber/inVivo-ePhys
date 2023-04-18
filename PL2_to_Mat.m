@@ -14,6 +14,13 @@ function PL2_to_Mat(pl2_file)
 %   For full documentation, please see the README and Getting
 %   Started guides at https://github.com/ckfaber/inVivo-ePhys
 
+%% BUGS:
+
+%   - breaks b/c current Omniplex configuration only saves AI channel being
+%   used, this script tries to load all of them. Workaround is to store in
+%   cell array instead, but results in lots of Plexon's internal
+%   function-genearted warnings.
+
 %% To-do: 
 
 %    - convert to function: 
@@ -23,41 +30,41 @@ function PL2_to_Mat(pl2_file)
 %% Set data loading/saving directories
 
 % Files
-file_name   = pl2_file;
+filename    = pl2_file;
 
 % Raw data repo - assumes working directory is 'C:\Users\username\MATLAB\'
-load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\');
+loaddir     = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\');
 
 %% Dont' change
 
-load_path   = [load_dir file_name];
-save_dir    = [load_dir 'Extracted'];
+filepath    = [loaddir filename];
+savedir     = [loaddir 'Extracted'];
 
-save_name   = strsplit(file_name,'.');
-save_name   = char(save_name(1));
-cd(save_dir)
+savename    = strsplit(filename,'.');
+savename    = char(savename(1));
+cd(savedir)
 
 %% Load data
 
 % Check for file
-if exist(load_path,'file') ~= 2
+if exist(filepath,'file') ~= 2
     error 'file does not exist, please confirm correct file path specified';
-    cd(load_dir)
+    cd(loaddir)
     filebrowser
 end
 
 % Load Omniplex metadata
-pl2idx      = PL2GetFileIndex(load_path);
+pl2idx      = PL2GetFileIndex(filepath);
 
 % Load neural data into matrix
-if exist([file_name '.mat'],'file') ==2
+if exist([filename '.mat'],'file') ==2
 
     fprintf('Data have already been extracted.');
 
-elseif exist([file_name '.mat'],'file') ==0
+elseif exist([filename '.mat'],'file') ==0
 
     % Initialize neural data matrix
-    [nChan,sampCounts]          = plx_adchan_samplecounts(load_path);
+    [nChan,sampCounts]          = plx_adchan_samplecounts(filepath);
     L                           = sampCounts(1);
     number_of_channels          = 16;
     data                        = zeros(number_of_channels,L);              
@@ -67,30 +74,50 @@ elseif exist([file_name '.mat'],'file') ==0
     % Loop through neural data channels
     for k = 1:number_of_channels
 
-        [sr, n, ts, fn, ad]     = plx_ad_v(load_path, broadband_ch_names{k});
+        [sr, n, ts, fn, ad]     = plx_ad_v(filepath, broadband_ch_names{k});
         data(k,:)               = ad;
     
     end
+end
 
-    % Initialize non-neural aux analog input channels
-    L                           = sampCounts(end);                          % MAY BREAK IF OMNIPLEX CONFIG CHANGED
-    number_of_channels          = 32;                                       % MAY BREAK IF OMNIPLEX CONFIG CHANGED
-    AI_data                     = zeros(number_of_channels,L);              % initialize data matrix
-
-    analog_ch_names             = {'AI01';'AI02';'AI03';'AI04';'AI05';'AI06';'AI07';'AI08';
+% Load analog input (AI) data
+analog_ch_names             = {'AI01';'AI02';'AI03';'AI04';'AI05';'AI06';'AI07';'AI08';
                                  'AI09';'AI10';'AI11';'AI12';'AI13';'AI14';'AI15';'AI16';
                                  'AI17';'AI18';'AI19';'AI20';'AI21';'AI22';'AI23';'AI24';
                                  'AI25';'AI26';'AI27';'AI28';'AI29';'AI30';'AI31';'AI32'};
+
+if nChan == length(find(sampCounts))
+
+% Initialize non-neural aux analog input channels
+    L                           = sampCounts(end);                          % MAY BREAK IF OMNIPLEX CONFIG CHANGED
+    number_of_channels          = 32;                                       % MAY BREAK IF OMNIPLEX CONFIG CHANGED
+    AI_data                     = zeros(number_of_channels,L);              % initialize data matrix
+    
+
     % Loop through aux analog input channels
     for k = 1:number_of_channels
 
-        [AI_sr, n, ts, fn, AI_ad]     = plx_ad_v(load_path, analog_ch_names{k});
+        [AI_sr, n, ts, fn, AI_ad]     = plx_ad_v(filepath, analog_ch_names{k});
         AI_data(k,:)                  = AI_ad;
     
     end
 
-    % Export as .mat 
-    save([save_name '.mat'],'pl2idx','data','sr','AI_data','AI_sr','-v7.3');
-    fprintf('Data extracted successfully.\n')
+elseif nChan != length(find(sampCounts))
+    warning('Recording contains empty channels.')
+    idx = find(sampCounts);
+    L = sampCounts(idx(end));
+    number_of_channels          = 32;                            % MAY BREAK IF OMNIPLEX CONFIG CHANGED
+    AI_data                     = cell(number_of_channels,1);    % initialize cell array - empty channels will result in Plexon's warnings but it will still work
+
+    for k = 1:number_of_channels
+
+        [AI_sr, n, ts, fn, AI_ad]     = plx_ad_v(filepath, analog_ch_names{k});
+        AI_data{k}                    = AI_ad;
+    
+    end
 
 end
+
+% Export as .mat 
+save([savename '.mat'],'pl2idx','data','sr','AI_data','AI_sr','-v7.3');
+fprintf('Data extracted successfully.\n')
