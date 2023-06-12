@@ -18,7 +18,7 @@
 %   _spikes.mat files to loop through them.
 
 
-filename            = '2022-10-13_dmu005_002';
+filename            = '2023-04-12_dmu006_003';
 w_pre               = 0.5;  % in ms
 w_post              = 2;    % in ms
 sort                = 'yes';
@@ -35,23 +35,23 @@ savename    = [filename '_MUA' '.mat'];
 if exist(fullfile(save_dir,savename),'file') ==0
 
     % Load raw neural data
-    raw_data    = load([load_dir filename],'-mat','data','sr');
+    data_all    = load([load_dir filename],'-mat','data','sr');
 
     % Format for Get_spikes
-    data_mat    = raw_data.data;
-    sr          = raw_data.sr;
-    nChan       = size(data_mat,1);
-    L           = size(data_mat,2);
+    sr          = data_all.sr;
+    data_all    = data_all.data;
+    
+    nChan   = size(data_all,1);
+    L       = size(data_all,2);
 
     % Common average re-referencing (artifact removal)
-    data_mat    = bsxfun(@minus,data_mat,mean(data_mat,1));
+    data_all    = bsxfun(@minus,data_all,mean(data_all,1));
 
     % Set parameters for Get_spikes
     param.w_pre         = w_pre/1000 * sr; % convert ms to s and multiply by sr to get samples
     param.w_post        = w_post/1000 * sr;
     param.detection     = 'both'; % detect both positive and negative going spikes
     param.sr            = sr; % ensure that the sampling rate is updated from the default in set_parameters()
-    clear raw_data
     fprintf('Raw data extracted')
 
     %             % Check if _spikes.mat files exist already
@@ -69,7 +69,7 @@ if exist(fullfile(save_dir,savename),'file') ==0
         rawfiles{chi}      = [temp_filename '.mat'];
         spikefiles{chi}    = [temp_filename '_spikes'];
 
-        data = data_mat(chi,:);
+        data = data_all(chi,:);
         save(fullfile(temp_dir,temp_filename),'data','sr') % save raw broadband data for each channel as .mat
 
         fprintf(['Channel ' num2str(chi) ' data saved to temp_dir, ready for input to Get_spikes.m\n'])
@@ -111,23 +111,23 @@ else exist(fullfile(save_dir,savename)) ==2
 
         case 'YES'
             % Load raw neural data
-            raw_data    = load([load_dir filename],'-mat','data','sr');
+            data_all    = load([load_dir filename],'-mat','data','sr');
     
             % Format for Get_spikes
-            data_mat    = raw_data.data;
-            sr          = raw_data.sr;
-            nChan       = size(data_mat,1);
-            L           = size(data_mat,2);
+            data_all    = data_all.data;
+            sr          = data_all.sr;
+            nChan       = size(data_all,1);
+            L           = size(data_all,2);
 
             % Common average re-referencing (artifact removal)
-            data_mat    = bsxfun(@minus,data_mat,mean(data_mat,1));
+            data_all    = bsxfun(@minus,data_all,mean(data_all,1));
     
             % Set parameters for Get_spikes
             param.w_pre         = w_pre/1000 * sr;
             param.w_post        = w_post/1000 * sr;
             param.detection     = 'both';
             param.sr            = sr;
-            clear raw_data
+            clear data_all
             fprintf('Raw data extracted')
 
 %             % Check if _spikes.mat files exist already
@@ -146,8 +146,8 @@ else exist(fullfile(save_dir,savename)) ==2
                  rawfiles{chi}      = [temp_filename '.mat'];
                  spikefiles{chi}    = [temp_filename '_spikes'];
         
-                 data = data_mat(chi,:);
-                 save(fullfile(temp_dir,temp_filename),'data','sr') % save raw broadband data for each channel as .mat
+                 data_all = data_all(chi,:);
+                 save(fullfile(temp_dir,temp_filename),'data_all','sr') % save raw broadband data for each channel as .mat
          
                  fprintf(['Channel ' num2str(chi) ' data saved to temp_dir, ready for input to Get_spikes.m\n'])
                    
@@ -184,4 +184,13 @@ if sort == 'yes'
     fprintf('Executing spike sorting. Go grab a coffee!');
     Do_clustering(spikefiles);
 
+    if curate == 'yes'
+    wave_clus
+    end
+
 end
+
+%% Curation
+
+
+

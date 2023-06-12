@@ -23,26 +23,26 @@ clear;clc;close all
 
 %% Hard-coding directory and experimental ID
 
+filename                 = '2023-04-04_dmu006_009.mat';
+
 % Copy/paste directory and experimental ID
-load_dir                 = 'C:\Users\chels\OneDrive - Barrow Neurological Institute\Project 3 - MUA of DMH\Pilots\Outputs\';  
-exp_ID                   = '09172021test2';
+loaddir     = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted');
 
 % Don't change these 
-cd(load_dir)
+cd(loaddir)
 
-rawdata_filename              = [exp_ID '.mat'];
-highpass_filename             = [exp_ID '_highpass_data.mat'];
-lowpass_filename              = [exp_ID '_lowpass_data.mat'];
-opto_filename                 = [exp_ID '_opto_stims.mat'];
+highpass_filename             = [filename '_highpass_data.mat'];
+lowpass_filename              = [filename '_lowpass_data.mat'];
+opto_filename                 = [filename '_opto_stims.mat'];
 
 %% Load data
 
 % Raw neural data
-load(rawdata_filename)
+load(filename)
 
-n_chan                       = size(data_mat,1);
-L                            = size(data_mat,2);
-time_base                    = 0 : 1/sr : (L-1)/sr ;
+nChan                       = size(data,1);
+L                           = size(data,2);
+timebase                    = 0 : 1/sr : (L-1)/sr ;
 
 % Opto data
 load(opto_filename)                                                 
@@ -58,7 +58,7 @@ else
     
     %High-pass filter 
     highpass_threshold      = 250;
-    highpass_data           = highpass(data_mat',highpass_threshold,sr)'; % using this for now, flattens baseline better
+    highpass_data           = highpass(data',highpass_threshold,sr)'; % using this for now, flattens baseline better
 
     save(highpass_filename,'highpass_data'); 
 
@@ -81,7 +81,7 @@ else
     [z,p,k] = butter(order,Fc/(sr/2),'low');
     [SOS,G] = zp2sos(z,p,k);            % convert to SOS structure to use filter analysis tool
 
-    lowpass_data = filtfilt(SOS,G,data_mat);
+    lowpass_data = filtfilt(SOS,G,data);
     save(lowpass_filename,'lowpass_data'); 
 
     fprintf("Low-pass filtering data \n")
@@ -91,15 +91,15 @@ end
 %% Retrieve MUA from output files of Get_Spikes
 
 % Create cell array containing spike indices {1,:}, shapes {2,:}, & thresholds {3,:} from each channel's _spikes.mat file
-all_spikes                   = cell(n_chan,3);
-for chi = 1:n_chan
+spikes                   = cell(nChan,3);
+for chi = 1:nChan
     
-    temp_filename            = [exp_ID '_ch' num2str(chi) '_spikes'];
+    temp_filename            = [filename '_ch' num2str(chi) '_spikes'];
     load(temp_filename,'threshold','index','spikes');
     
-    all_spikes{chi,1}        = index/1000; % convert ms to s
-    all_spikes{chi,2}        = spikes;
-    all_spikes{chi,3}        = threshold;
+    spikes{chi,1}        = index/1000; % convert ms to s
+    spikes{chi,2}        = spikes;
+    spikes{chi,3}        = threshold;
 
     clear threshold index spikes
     
@@ -151,9 +151,9 @@ legend('Epoch 1','Epoch 2')
 ch_to_plot                  = 5;
 
 % Find times & distances of spikes closest to stims
-[k,dist]                    = dsearchn(all_spikes{ch_to_plot,1}',stim_times');            % dsearchn requires column vectors 
+[k,dist]                    = dsearchn(spikes{ch_to_plot,1}',stim_times');            % dsearchn requires column vectors 
 
-channel_responses           = all_spikes{ch_to_plot}(k); % in seconds
+channel_responses           = spikes{ch_to_plot}(k); % in seconds
 channel_response_idx        = round(channel_responses*sr); % neural data indices
 
 % to do: index/plot all waveforms near optical stimulation - see if they are successfully sorted by
@@ -162,11 +162,11 @@ channel_response_idx        = round(channel_responses*sr); % neural data indices
 %% Firing rate - right now for MUA, need to update for sorted neurons later
 
 % Mean MUA firing rates over recording session
-MUA_mean_fr                 = zeros(n_chan,1);
+MUA_mean_fr                 = zeros(nChan,1);
 
-for chi = 1:n_chan
+for chi = 1:nChan
     
-    temp_idx                = all_spikes{chi,1};
+    temp_idx                = spikes{chi,1};
     MUA_mean_fr(chi)        = length(temp_idx) / (temp_idx(end) - temp_idx(1));
 
 end
@@ -174,11 +174,11 @@ end
 % Binned FR by channel
 binwidth                    = 1;                                        % in seconds
 edges                       = 0 : binwidth: L/sr ;                      % vector containing bin edges in time (s)
-MUA_fr_bins                 = zeros(n_chan,length(edges)-1);            % initialize matrix
+MUA_fr_bins                 = zeros(nChan,length(edges)-1);            % initialize matrix
 
-for chi = 1:n_chan
+for chi = 1:nChan
 
-    MUA_fr_bins(chi,:)      = histcounts(all_spikes{chi,1},edges) / binwidth;
+    MUA_fr_bins(chi,:)      = histcounts(spikes{chi,1},edges) / binwidth;
 
 end
 
@@ -223,9 +223,9 @@ xlabel('Time (s)'); ylabel('Firing Rate (Hz)')
 legend('','Mean FR',[num2str(stim_hz) ' Hz Stimulation'])
 
 subplot(212)
-plot(time_base,highpass_data(ch_to_plot,:),'Color',[.2 .2 .2])
+plot(timebase,highpass_data(ch_to_plot,:),'Color',[.2 .2 .2])
 hold on
-yline(all_spikes{ch_to_plot,3},'r-','LineWidth',1)
+yline(spikes{ch_to_plot,3},'r-','LineWidth',1)
 h = stem(stim_times,repmat(-0.3,size(stim_times,2),1)','Marker','none','Color',[0 0.4470 0.7410],'LineWidth',0.5,'BaseValue',-0.4);
 xlabel('Time (s)')
 ylabel('Voltage (mV)')
@@ -234,11 +234,11 @@ legend('','Spike threshold',[num2str(stim_hz) ' Hz Stimulation'])
 
 %% Plot AP snippets
 
-AP_samples                  = size(all_spikes{ch_to_plot,2},2);
+AP_samples                  = size(spikes{ch_to_plot,2},2);
 AP_timebase                 = round(-0.5*AP_samples:0.5*AP_samples-1) / sr; 
 
 figure;
-plot(AP_timebase,all_spikes{ch_to_plot,2},'-o') 
+plot(AP_timebase,spikes{ch_to_plot,2},'-o') 
 ylabel('Voltage (mV)');
 xlabel('Time (\mus)');
 title(['Spike waveforms from channel ' num2str(ch_to_plot)])
@@ -301,7 +301,7 @@ movingwin                   = [0.250 0.025];
 
 figure
 subplot(211)
-plot(time_base,lowpass_data(ch_to_plot,:),'Color',[.2 .2 .2])
+plot(timebase,lowpass_data(ch_to_plot,:),'Color',[.2 .2 .2])
 title(['LFP from channel ' num2str(ch_to_plot)])
 xlabel('Time (s)')
 ylabel('mV')

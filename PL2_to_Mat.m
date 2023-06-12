@@ -102,7 +102,7 @@ if nChan == length(find(sampCounts))
     
     end
 
-elseif nChan != length(find(sampCounts))
+elseif nChan ~= length(find(sampCounts))
     warning('Recording contains empty channels.')
     idx = find(sampCounts);
     L = sampCounts(idx(end));
@@ -121,3 +121,4 @@ end
 % Export as .mat 
 save([savename '.mat'],'pl2idx','data','sr','AI_data','AI_sr','-v7.3');
 fprintf('Data extracted successfully.\n')
+cd(userpath)
