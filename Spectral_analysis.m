@@ -28,22 +28,38 @@
 
 %% Hard-code file name
 
-file_name   = '2022-08-16_dmu005_001.mat';
+file_name   = '2023-05-25_dmu006_001.mat';
 
 %% Load broadband data
 
 load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted\');
 load([load_dir file_name],'data','sr','pl2idx')
 
-%% Filter 
+%% Quick discrete FFT
 
-%% low pass filter from Bradley
+nPts = size(data,2);
+
+% Time-domain averaged data
+ERP = mean(data,1);
+
+% FFT
+f = fft(ERP);
+
+% Frequency vector
+hz = linspace(0,sr,nPts);
+
+% Power
+
+
+
+%% Filter 
+% low pass filter from Bradley
 
 order = 3;
 Rp = 1; % pass-band ripple in db
 Rs = 60; % stop-band attenuation in db
 Fc = 250; % cutoff frequency - 250 Hz will remove most low frequency LFP %this doesn't make sense? Will remove high frequency?
-Fs = Fs; % sampling frequency of data (the specific Fs should be in the data file)
+Fs = sr; % sampling frequency of data (the specific Fs should be in the data file)
 [z,p,k] = ellip(order,Rp,Rs,Fc/(Fs/2),'low'); % building (setup) filter
 % [z,p,k] = butter(order,Fc/(Fs/2),'high'); % butterworth filter
 [SOS,G] = zp2sos(z,p,k);% convert to SOS structure to use filter analysis tool
@@ -53,3 +69,4 @@ tic;
 lfp = filtfilt(SOS,G,data); %running filter
 toc
 
+%% 
