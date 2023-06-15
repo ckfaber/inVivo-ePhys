@@ -41,6 +41,10 @@ load(raw_dir)
 
 %% MUA FR plot - TEST CH1
 
+% Binned FR by channel
+binwidth                    = 10;                                        % in seconds
+edges                       = 0 : binwidth: L/sr ;                      % vector containing bin edges in time (s)
+MUA_fr_bins                 = zeros(nChan,length(edges)-1);             % initialize matrix
 times1 = spikes.ch14.index ./ 1000; % convert ms to s
 
 avg_fr = length(times1)/(times1(end)-times1(1));
