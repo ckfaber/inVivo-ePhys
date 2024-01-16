@@ -1,4 +1,4 @@
-function PL2_to_Mat(pl2_file)
+function PL2_to_Mat(fname, path)
 %   PL2_TO_MAT Extract raw broadband and auxiliarly analog input data from
 %   .pl2 files and save to .mat.
 %
@@ -22,23 +22,16 @@ function PL2_to_Mat(pl2_file)
 %   function-genearted warnings.
 
 %% To-do: 
-
-%    - convert to function: 
-%       - allow input array of file names.
-%       - list of non-neural data channels desired (varargin)
+% -       - 
+% - allow input array of file names.
+% - list of non-neural data channels desired (varargin)
 
 %% Set data loading/saving directories
 
 % Files
-filename    = pl2_file;
-
-% Raw data repo - assumes working directory is 'C:\Users\username\MATLAB\'
-loaddir     = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\');
-
-%% Dont' change
-
-filepath    = [loaddir filename];
-savedir     = [loaddir 'Extracted'];
+filename    = fname;
+filepath    = [path filename];
+savedir     = [path 'Extracted'];
 
 savename    = strsplit(filename,'.');
 savename    = char(savename(1));
@@ -49,7 +42,7 @@ cd(savedir)
 % Check for file
 if exist(filepath,'file') ~= 2
     error 'file does not exist, please confirm correct file path specified';
-    cd(loaddir)
+    cd(path)
     filebrowser
 end
 
