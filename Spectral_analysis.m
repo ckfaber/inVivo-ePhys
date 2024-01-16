@@ -28,28 +28,47 @@
 
 %% Hard-code file name
 
-file_name   = '2023-05-25_dmu006_001.mat';
+filename1   = '2023-05-25_dmu006_001.mat';
 
-%% Load broadband data
+%% 1) Load broadband data
 
 load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted\');
-load([load_dir file_name],'data','sr','pl2idx')
+load([load_dir filename1],'data','sr','pl2idx')
 
-%% Quick discrete FFT
+%% 2) Quick vis raw data
 
-nPts = size(data,2);
+nPts        = size(data,2);
+timebase    = 0 : 1/sr : (nPts - 1)/sr;
+chtoplot    = 1;
+
+plot(timebase(1:160000),data(chtoplot,1:160000))
+xlabel("Seconds")
+ylabel("Voltage (mV)")
+title(['Channel ' num2str(chtoplot) ' broadband trace'])
+
+%% 3) Quick discrete FFT
 
 % Time-domain averaged data
 ERP = mean(data,1);
 
 % FFT
 f = fft(ERP);
+f = f/nPts;
 
 % Frequency vector
 hz = linspace(0,sr,nPts);
+nyquist = sr/2;
 
-% Power
+% Amplitudes
+amps = 2*abs(f);
 
+% Plot
+frexidx = dsearchn(hz',30);
+plot(hz(1:frexidx),amps(1:frexidx),Color=[0.2 0.2 0.2])
+axis tight
+xlabel('Hz')
+ylabel('Amplitude')
+title('DFFT')
 
 
 %% Filter 
@@ -69,4 +88,5 @@ tic;
 lfp = filtfilt(SOS,G,data); %running filter
 toc
 
-%% 
+%% Spectrogram
+
