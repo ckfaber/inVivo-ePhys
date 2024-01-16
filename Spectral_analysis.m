@@ -28,23 +28,74 @@
 
 %% Hard-code file name
 
-filename1   = '2023-05-25_dmu006_001.mat';
+[file,path] = uigetfile('*.mat');
+export = true; % set to true or false for exporting graphics to new subfolder
 
 %% 1) Load broadband data
 
-load_dir    = fullfile(userpath,'..','\Dropbox (Barrow Neurological Institute)\Mirzadeh Lab Dropbox MAIN\Data\Plexon_Ephys\Extracted\');
-load([load_dir filename1],'data','sr','pl2idx')
+load([path file],'data','sr','pl2idx')
 
-%% 2) Quick vis raw data
 
-nPts        = size(data,2);
+%% 
+
+savename    = strsplit(file,'.');
+savename    = char(savename(1));
+
+newdir = savename;
+
+savedir = [path newdir];
+
+if exist(savedir) == 7
+    fprintf(['Directory ' newdir ' exists\n'])
+else
+    fprintf(['Directory ' newdir ' does not exist\n'])
+    mkdir(savedir)
+    fprintf(['New directory ' newdir ' created.\n'])
+end
+
+%% 2) Quick vis raw data - full recording
+
+% Parameters for plotting
+[nChan,nPts] = size(data);
 timebase    = 0 : 1/sr : (nPts - 1)/sr;
-chtoplot    = 1;
 
-plot(timebase(1:160000),data(chtoplot,1:160000))
+figure
+for chi = 1:nChan
+    subplot(4,4,chi)
+    plot(timebase,data(chi,:),'Color',[0.2 0.2 0.2])
+    xlabel('Time (s)')
+    ylabel('Voltage (mV)')
+    title(['Channel ' num2str(chi)])
+    set(gca,'color','none')
+end
+sgtitle({'Broadband data',strrep(savename,'_','\_')})
+
+% Export figure
+set(gcf,'color','none')
+exportgraphics(gcf,[savedir '\' savename '_BB-full.pdf'],'BackgroundColor','none','ContentType','vector')
+
+%% 3) Quick vis raw data - snippet
+
+% Select parameters for figures 
+chtoplot    = 4;
+swin        = 4; % in seconds, size of random broadband snippet to plot
+
+% Random generation of snippet window
+winsize     = swin*sr;
+t1 = 
+
+% Individual channel
+figure
+plot(timebase(1:tidx),data(chtoplot,1:tidx))
 xlabel("Seconds")
 ylabel("Voltage (mV)")
 title(['Channel ' num2str(chtoplot) ' broadband trace'])
+
+% All channels
+figure
+for chi = 1:nChan
+    subplot(4,4,chi)
+    plot(timebase(1:tidx))
 
 %% 3) Quick discrete FFT
 
@@ -63,7 +114,7 @@ nyquist = sr/2;
 amps = 2*abs(f);
 
 % Plot
-frexidx = dsearchn(hz',30);
+frexidx = dsearchn(hz',25);
 plot(hz(1:frexidx),amps(1:frexidx),Color=[0.2 0.2 0.2])
 axis tight
 xlabel('Hz')
