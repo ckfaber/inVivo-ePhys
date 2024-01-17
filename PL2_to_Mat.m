@@ -22,8 +22,7 @@ function PL2_to_Mat(fname, path)
 %   function-genearted warnings.
 
 %% To-do: 
-% -       - 
-% - allow input array of file names.
+
 % - list of non-neural data channels desired (varargin)
 
 %% Set data loading/saving directories
