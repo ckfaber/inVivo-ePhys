@@ -14,6 +14,6 @@
 [file,path] = uigetfile('*.mat','MultiSelect','on');
 %filepaths = strcat(path,file);
 
-%% Run PL2_to_Mat.m function for all files
+%% Run lowpass_down.m function for all files
 
 cellfun(@(x) lowpass_down(x,path),file)
