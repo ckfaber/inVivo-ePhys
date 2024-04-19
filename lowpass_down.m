@@ -26,11 +26,8 @@ load(filepath)
 %% Low-pass filter
 
 order = 3;
-Rp = 1; % pass-band ripple in db
-Rs = 60; % stop-band attenuation in db
 Fc = 250; % cutoff frequency - 250 Hz will remove most low frequency LFP %this doesn't make sense? Will remove high frequency?
 Fs = sr; % sampling frequency of data (the specific Fs should be in the data file)
-%[z,p,k] = ellip(order,Rp,Rs,Fc/(Fs/2),'low'); % building (setup) filter
 [z,p,k] = butter(order,Fc/(Fs/2),'low'); % butterworth filter
 [SOS,G] = zp2sos(z,p,k);% convert to SOS structure to use filter analysis tool
 % tool to look at filter

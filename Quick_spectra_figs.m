@@ -1,10 +1,7 @@
 function Quick_spectra_figs(fname,path,export,ftype,ctype)
 % Generates plots for manual inspection of data before more detailed
 % processing.
-% 
-% REMOVE ALL SPECTROGRAMS FROM THIS FUNCTION AND MOVE TO SEPARATE ONE -
-% CODE WORKS BETTER ON NON-FILTERED DATA!!!
-
+%
 % FINISH THIS DOCUMENTATION: 
 % 
 % INPUTS
@@ -202,6 +199,70 @@ subtitle(strrep(savename,'_','\_'),'FontSize',10)
 annotation('rectangle',[0 0 1 1],'Color','w');
 f6 = gca;
 set(f6,'color','none','box','off','TickDir','out')
+
+%% Figure 7: Spectrum
+
+ERP = mean(LFP,1);
+
+% FFT
+f = fft(ERP);
+f = f/nPts;
+
+% Frequency vector
+hz = linspace(0,sr,nPts);
+nyquist = sr/2;
+
+% Amplitudes
+amps = 2*abs(f);
+
+% Plot
+frexidx = dsearchn(hz',25);
+plot(hz(1:frexidx),amps(1:frexidx),Color=[0.2 0.2 0.2])
+axis tight
+xlabel('Hz')
+ylabel('Amplitude')
+title('DFFT')
+
+%% Figure 8: Spectrum w/ Welch's Correction
+
+win     = 2 * sr; % in points
+nbins   = floor(nPts / win);
+
+% new vector of frequencies for 2s windows
+hzW     = linspace(0, sr, win);
+
+% initialize time-frequency matrix
+welch = zeros(1,length(hzW));
+
+% Hann taper - OPTIONAL
+hwin = .5*(1-cos(2*pi*(1:win) / (win-1)));
+
+% loop over time windows
+for ti = 1 : nbins
+
+    % extract signal window
+    tidx = (ti-1) * win + 1 : ti * win;
+    tmp = ERP(tidx);
+
+    % FFT
+    x = fft(hwin .* tmp) / win;
+
+    % append to matrix
+    welch = welch + 2 * abs(x(1 : length(hzW)));
+
+end 
+
+welch = welch / nbins;
+
+frexidx = dsearchn(hzW',30);
+
+figure,clf
+plot(hzW(1:frexidx),welch(1:frexidx),'k','linew',2)
+axis tight
+xlabel('Hz')
+ylabel('Amplitude')
+title("Welch's FFT")
+subtitle("2s window")
 
 %% Export
 
